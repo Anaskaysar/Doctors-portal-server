@@ -63,6 +63,13 @@ async function run() {
             }
             res.json({admin:isAdmin})
         })
+        //get api for single appoinment
+        app.get('/appoinments/:id',async(req,res)=>{
+            const id=req.params.id;
+            const query={_id:ObjectId(id)};
+            const result=await appointmentsCollection.findOne(query);
+            res.json(result);
+        })
         //Post Appointments Api
         app.post('/appointments', async (req, res) => {
             const appointment = req.body;
