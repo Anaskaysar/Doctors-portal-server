@@ -1,9 +1,10 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const app = express();
 const cors = require('cors');
 var admin = require("firebase-admin");
 require('dotenv').config();
 const { MongoClient } = require('mongodb');
+const ObjectId = require('mongodb').ObjectId;
 
 const port = process.env.PORT || 5000;
 
@@ -42,17 +43,22 @@ async function run() {
         //Get Appoinments Api
         app.get('/appointments', verifyToken, async (req, res) => {
             const email = req.query.email;
-            //console.log(email);
-            const date = req.query.date;
-            //console.log(date);
+            const date = req.query.date;           
             const query = { email: email,date:date }
-            // console.log(query);
             const cursor = appointmentsCollection.find(query);
             const appointments = await cursor.toArray();
             res.json(appointments);
         })
 
-        //addmin check and login
+         //get api for single appoinment
+         app.get('/appoinments/:id',async(req,res)=>{
+            const id=req.params.id;
+            const query={_id:ObjectId(id)};
+            const result=await appointmentsCollection.findOne(query);
+            res.json(result);
+        })
+
+        //admin check and login
         app.get('/users/:email',async(req,res)=>{
             const email=req.params.email;
             const query={email:email};
@@ -63,13 +69,7 @@ async function run() {
             }
             res.json({admin:isAdmin})
         })
-        //get api for single appoinment
-        app.get('/appoinments/:id',async(req,res)=>{
-            const id=req.params.id;
-            const query={_id:ObjectId(id)};
-            const result=await appointmentsCollection.findOne(query);
-            res.json(result);
-        })
+            
         //Post Appointments Api
         app.post('/appointments', async (req, res) => {
             const appointment = req.body;
@@ -86,6 +86,7 @@ async function run() {
             res.json(result);
 
         })
+
 
         //upsert User Api
         app.put('/users',async(req,res)=>{
