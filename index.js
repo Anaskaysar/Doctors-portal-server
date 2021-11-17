@@ -57,7 +57,7 @@ async function run() {
 
         
         //payments proceed
-        app.post('/create-payment-intent',async(req,res)=>{
+        app.put('/create-payment-intent',async(req,res)=>{
             const paymentInfo=req.body;
             const amount=paymentInfo.price*100;
             const paymentIntent=await stripe.paymentIntents.create({
@@ -75,17 +75,20 @@ async function run() {
             const result=await appointmentsCollection.findOne(query);
             res.json(result);
         })
+
+
         
         //update payment
         app.put('/appoinments/:id',async(req,res)=>{
-            const id=req.params.id;
-            const filter= {_id:ObjectId(id)}
-            const updateDoc={
-                $set:{
-                    payment:payment
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    payment: payment
                 }
             };
-            const result=await appointmentsCollection.updateOne(filter,updateDoc)
+            const result = await appointmentsCollection.updateOne(filter, updateDoc);
             res.json(result);
         })
          // doctors api
